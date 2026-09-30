@@ -7,7 +7,8 @@
 ## 目录职责
 
 - `game/script.rpy`：章节流程、菜单、状态变量与结局。新剧情和分支放在这里或按章节新增 `.rpy` 文件。
-- `src/App.tsx`：Web 第一章状态机、分支、结局和本地存档。React UI 使用 DOM/CSS，不使用 Canvas 或 WebAssembly。
+- `src/App.tsx`：Web 叙事运行时、UI 分层和版本化本地存档。React UI 使用 DOM/CSS，不使用 Canvas 或 WebAssembly。
+- `src/story/chapter01.ts`：第一章逐句节点、选项、倾向效果与结局规则。新章节应保持内容数据与 UI 运行时分离。
 - `src/styles.css`：Web UI 样式与 CSS 中文字体回退策略。
 - `package.json`：Web 开发与构建命令。执行 `npm run build` 生成 `dist/`；不要提交 `node_modules/` 或 `dist/`。
 - `game/screens.rpy`：聊天背景、好友申请、聊天窗口、对话框、选项和确认框等自定义 screen。
@@ -39,7 +40,7 @@
 ## 资产与界面
 
 - 添加图像后使用相对 `game/` 的 Ren'Py 路径，例如 `images/bg/example.png`；提交必要的源文件，不提交生成缓存。
-- Ren'Py Web 不能可靠地使用访问者的系统字体。`UnloggedText.woff2` 是当前 `.rpy` 文本的中文子集；改动任何游戏文案后，用 `docs/font-source/NotoSansCJKsc-Regular.otf` 和 FontTools 从全部 `.rpy` 重新生成并确认没有缺字，再提交该文件。`docs/` 会被构建规则排除，不会增加发行包体积。
+- Ren'Py Web 不能可靠地使用访问者的系统字体。`UnloggedText.woff2` 是当前运行时文本的中文子集；改动 `game/*.rpy` 或 `src/` 中的任何游戏文案后，用 `docs/font-source/NotoSansCJKsc-Regular.otf` 和 FontTools 从全部 `.rpy`、`.ts`、`.tsx`、`.css` 重新生成并确认没有缺字，再提交该文件。`docs/` 会被构建规则排除，不会增加发行包体积。
 - 背景图由 `chat_backdrop` 按 `config.screen_width` 和 `config.screen_height` 拉伸。替换时在目标分辨率下检查裁切和文字可读性。
 - 保持现有冷色界面与少量红色警示色的视觉语言。文本须在深色背景上有足够对比度。
 - 聊天气泡中的动态文本保留 `substitute False`，避免玩家输入或文本意外触发替换。
