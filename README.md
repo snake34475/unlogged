@@ -18,7 +18,15 @@
 
 如果你的版本没有项目目录设置入口，可先点击“创建新项目”，在首次出现的“项目目录”选择框中选择 `C:\Users\10988\Desktop\coding\ai-game`；创建完成后刷新 Launcher，`longzu` 也会出现在项目列表中。临时创建的空项目随后可在资源管理器中删除。
 
-项目目前使用纯色 UI 和文字音效占位，不依赖任何外部资源；以后可以直接替换 `game/` 内的界面与音频实现。
+项目目前使用纯色 UI 和文字音效占位。中文文本使用随项目分发的 Noto Sans CJK SC 字体（`game/fonts/NotoSansCJKsc-Regular.otf`），因此 Windows 与 Web 构建均不依赖系统字体；其许可证位于 `game/fonts/OFL.txt`。以后可以直接替换 `game/` 内的界面与音频实现。
+
+## 发布到 GitHub Pages
+
+1. 在 Ren'Py Launcher 的 **Web (Beta)** 页面执行 **Build Web Application**，并先用 **Build and Open in Browser** 本地验证。
+2. 将生成的 Web 目录中的所有文件发布到仓库的 `gh-pages` 分支根目录；不要只上传 `web.zip`。其中 `index.html`、`game/`、`game.zip`、`renpy.data`、`renpy.js` 和 `renpy.wasm` 都是必需文件。
+3. 在 GitHub 仓库的 **Settings → Pages** 中，选择 **Deploy from a branch**，并将 `gh-pages` 的 `/(root)` 设为发布来源。
+
+本项目采用本机构建、`gh-pages` 分支发布的方式，因而无需 GitHub Actions 工作流。每次发布都应以最新 Web 构建目录的内容完整替换 `gh-pages` 分支的内容。首次加载会下载 Ren'Py Web 运行时、游戏资源与中文字体，耗时取决于网络状况。
 
 ## 文档
 

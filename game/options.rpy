@@ -11,7 +11,7 @@ init python:
     build.classify("docs/**", None)
     build.classify("README.md", None)
 
-# 原型优先保证 Windows 上的中文可读。正式发布时将替换为随游戏分发的开源字体。
+# 使用随游戏分发的开源中文字体，确保 Web/WASM 运行时也能读取。
 style default:
-    font "C:/Windows/Fonts/msyh.ttc"
+    font "fonts/NotoSansCJKsc-Regular.otf"
 
