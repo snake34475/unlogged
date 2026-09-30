@@ -1,19 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import backgroundUrl from "../game/images/bg/room_night.jpg";
 import nAvatarUrl from "../game/images/avatars/n_unknown.jpg";
 import playerAvatarUrl from "../game/images/avatars/player_unknown.jpg";
 import { chapter01Start, getNode, type Scores, type Sender } from "./story/chapter01";
 
 type ChatLine = { sender: "n" | "me"; text: string };
-type GameState = { version: 2; currentId: string; scores: Scores; chatHistory: ChatLine[]; chatVisible: boolean };
+type StoryLine = { id: string; sender: Sender; text: string };
+type GameState = { version: 3; currentId: string; scores: Scores; chatHistory: ChatLine[]; storyHistory: StoryLine[]; chatVisible: boolean };
+type LegacyGameState = Omit<GameState, "version" | "storyHistory"> & { version: 2 };
 
 const SAVE_KEY = "unlogged.chapter-01.save";
 const emptyScores = (): Scores => ({ trust: 0, curiosity: 0, avoidance: 0 });
-const initialState = (): GameState => ({ version: 2, currentId: chapter01Start, scores: emptyScores(), chatHistory: [], chatVisible: false });
+const initialState = (): GameState => enterNode(chapter01Start, { version: 3, currentId: chapter01Start, scores: emptyScores(), chatHistory: [], storyHistory: [], chatVisible: false });
 
 function isSavedGame(value: unknown): value is GameState {
   if (!value || typeof value !== "object") return false;
   const saved = value as Partial<GameState>;
+  return saved.version === 3
+    && typeof saved.currentId === "string"
+    && Boolean(getNode(saved.currentId))
+    && Boolean(saved.scores)
+    && [saved.scores?.trust, saved.scores?.curiosity, saved.scores?.avoidance].every(Number.isFinite)
+    && Array.isArray(saved.chatHistory)
+    && Array.isArray(saved.storyHistory)
+    && typeof saved.chatVisible === "boolean";
+}
+
+function isLegacySavedGame(value: unknown): value is LegacyGameState {
+  if (!value || typeof value !== "object") return false;
+  const saved = value as Partial<LegacyGameState>;
   return saved.version === 2
     && typeof saved.currentId === "string"
     && Boolean(getNode(saved.currentId))
@@ -26,7 +41,13 @@ function isSavedGame(value: unknown): value is GameState {
 function loadState(): GameState {
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY) ?? "null");
-    return isSavedGame(saved) ? saved : initialState();
+    if (isSavedGame(saved)) return saved;
+    if (isLegacySavedGame(saved)) {
+      const node = getNode(saved.currentId);
+      const storyHistory = node?.kind === "line" ? [{ id: node.id, sender: node.sender, text: node.text }] : [];
+      return { ...saved, version: 3, storyHistory };
+    }
+    return initialState();
   } catch {
     return initialState();
   }
@@ -43,8 +64,11 @@ function enterNode(id: string, state: GameState): GameState {
       continue;
     }
     if (node.kind === "end") return { ...nextState, currentId: nextId, chatVisible: false };
-    if (node.kind === "line" && (node.sender === "n" || node.sender === "me")) {
-      nextState = { ...nextState, chatHistory: [...nextState.chatHistory, { sender: node.sender, text: node.text }] };
+    if (node.kind === "line") {
+      const storyHistory = [...nextState.storyHistory, { id: node.id, sender: node.sender, text: node.text }];
+      nextState = node.sender === "n" || node.sender === "me"
+        ? { ...nextState, storyHistory, chatHistory: [...nextState.chatHistory, { sender: node.sender, text: node.text }] }
+        : { ...nextState, storyHistory };
     }
     return { ...nextState, currentId: nextId };
   }
@@ -57,9 +81,12 @@ export default function App() {
   const [showTitle, setShowTitle] = useState(() => game.currentId === chapter01Start && game.chatHistory.length === 0);
   const [confirmRestart, setConfirmRestart] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyProgress, setHistoryProgress] = useState(100);
   const [textSpeed, setTextSpeed] = useState<"慢" | "标准" | "快">("标准");
   const current = getNode(game.currentId)!;
   const [displayedText, setDisplayedText] = useState("");
+  const historyBody = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     localStorage.setItem(SAVE_KEY, JSON.stringify(game));
@@ -72,19 +99,21 @@ export default function App() {
   }, [showTitle]);
 
   useEffect(() => {
-    if (current.kind !== "line") {
-      setDisplayedText("");
-      return;
-    }
     setDisplayedText("");
-    let index = 0;
-    const timer = window.setInterval(() => {
-      index += 1;
-      setDisplayedText(current.text.slice(0, index));
-      if (index >= current.text.length) window.clearInterval(timer);
-    }, textSpeed === "慢" ? 70 : textSpeed === "快" ? 28 : 48);
-    return () => window.clearInterval(timer);
-  }, [current, textSpeed]);
+  }, [current]);
+
+  useEffect(() => {
+    if (current.kind !== "line" || historyOpen || displayedText.length >= current.text.length) return;
+    const timer = window.setTimeout(() => setDisplayedText(current.text.slice(0, displayedText.length + 1)), textSpeed === "慢" ? 70 : textSpeed === "快" ? 28 : 48);
+    return () => window.clearTimeout(timer);
+  }, [current, displayedText, historyOpen, textSpeed]);
+
+  useEffect(() => {
+    if (!historyOpen || !historyBody.current) return;
+    const body = historyBody.current;
+    body.scrollTop = body.scrollHeight;
+    setHistoryProgress(100);
+  }, [historyOpen]);
 
   const advance = () => {
     if (current.kind !== "line") return;
@@ -117,18 +146,27 @@ export default function App() {
     setGame(initialState());
     setConfirmRestart(false);
     setMenuOpen(false);
+    setHistoryOpen(false);
     setShowTitle(true);
+  };
+
+  const updateHistoryProgress = () => {
+    const body = historyBody.current;
+    if (!body) return;
+    const travel = body.scrollHeight - body.clientHeight;
+    setHistoryProgress(travel <= 0 ? 100 : Math.round((body.scrollTop / travel) * 100));
   };
 
   return <main className="game-shell" style={{ backgroundImage: `linear-gradient(#070b1299, #070b12d9), url(${backgroundUrl})` }}>
     <section className="game" aria-label="未登录的人，第一章">
       {showTitle && <section className="title-transition" aria-label="第一章，未登录的人"><p>第一章</p><h1>未登录的人</h1></section>}
       <div className="hud">
+        <button className="history-icon" type="button" onClick={() => { setMenuOpen(false); setHistoryOpen(true); }} aria-label="打开对话记录">对话记录</button>
         <button className="menu-icon" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-label={menuOpen ? "关闭菜单" : "打开菜单"}>☰</button>
-        <button className="restart-icon" type="button" onClick={() => { setMenuOpen(false); setConfirmRestart(true); }} aria-label="重新开始" title="重新开始">↻</button>
         {menuOpen && <section className="game-menu" aria-label="游戏菜单"><p>第一章 · 未登录的人</p><div className="speed-control"><span>文字速度</span>{(["慢", "标准", "快"] as const).map((speed) => <button type="button" className={textSpeed === speed ? "active" : ""} onClick={() => setTextSpeed(speed)} key={speed}>{speed}</button>)}</div><button className="menu-restart" type="button" onClick={() => { setMenuOpen(false); setConfirmRestart(true); }}>重新开始</button></section>}
         {confirmRestart && <section className="restart-confirm" role="dialog" aria-label="确认重新开始"><p>要从头开始吗？</p><div><button type="button" onClick={() => setConfirmRestart(false)}>取消</button><button className="danger" type="button" onClick={restart}>重新开始</button></div></section>}
       </div>
+      {historyOpen && <><button className="history-scrim" type="button" aria-label="关闭对话记录" onClick={() => setHistoryOpen(false)} /><section className="history-panel" aria-label="对话记录"><header><div><strong>对话记录</strong><span>第一章 · 未登录的人</span></div><button type="button" onClick={() => setHistoryOpen(false)} aria-label="关闭对话记录">×</button></header><div className="history-progress"><i style={{ width: `${historyProgress}%` }} /></div><div className="history-body" ref={historyBody} onScroll={updateHistoryProgress}>{game.storyHistory.map((line) => <article className={`history-entry ${line.sender}`} key={line.id}><strong>「{nameFor[line.sender]}」</strong><p>{line.id === current.id ? displayedText : line.text}</p></article>)}</div><footer><span>{historyProgress}%</span><span>滚动回看</span></footer></section></>}
       {current.kind !== "end" && <>
         <div className="clock">23:47</div>
         {game.chatVisible && !current.profile && !current.friendsList && <section className="chat-window" aria-label="与 N 的聊天记录"><div className="chat-heading"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>在线</span></div></div><div className="messages">{game.chatHistory.slice(-4).map((line, index) => <ChatBubble key={`${line.text}-${index}`} line={line} />)}</div></section>}
