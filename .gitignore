@@ -1,0 +1,21 @@
+# Ren'Py generated files
+game/cache/
+game/saves/
+game/*.rpyc
+log.txt
+traceback.txt
+errors.txt
+
+# Ren'Py build outputs
+*-dists/
+*.zip
+
+# Development-only reference materials
+gpt-talk.txt
+龙族1~4 (江南) (z-library.sk, 1lib.sk, z-lib.sk).txt
+
+# Editor and operating-system noise
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
