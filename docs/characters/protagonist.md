@@ -16,7 +16,7 @@
 
 ## 母版
 
-`game/images/characters/protagonist/master_front.png` 是目前唯一锁定的正面全身中性参考。后续图必须保持脸型、发型、服装和比例一致。
+`game/images/characters/protagonist/master_front.jpg` 是目前唯一锁定的正面全身中性参考。后续图必须保持脸型、发型、服装和比例一致。
 
 ## 素材优先级
 

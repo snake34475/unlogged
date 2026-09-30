@@ -3,7 +3,7 @@ screen chat_backdrop():
     zorder -100
 
     # 按游戏实际分辨率缩放，避免只显示原图左上角。
-    add "images/bg/room_night.png" xsize config.screen_width ysize config.screen_height
+    add "images/bg/room_night.jpg" xsize config.screen_width ysize config.screen_height
 
 # 只在 N 首次出现时短暂使用；不是常驻聊天软件界面。
 screen friend_request():
@@ -18,7 +18,7 @@ screen friend_request():
 
         hbox:
             spacing 14
-            add "images/avatars/n_unknown.png" xsize 78 ysize 78
+            add "images/avatars/n_unknown.jpg" xsize 78 ysize 78
             vbox:
                 spacing 4
                 text "N" size 27 color "#f2f4f8"
@@ -45,7 +45,7 @@ screen n_chat_window():
                 padding (20, 14)
                 hbox:
                     spacing 14
-                    add "images/avatars/n_unknown.png" xsize 64 ysize 64
+                    add "images/avatars/n_unknown.jpg" xsize 64 ysize 64
                     vbox:
                         text "N" size 28 color "#f2f4f8"
                         text "在线" size 16 color "#8fc5ad"
@@ -65,7 +65,7 @@ screen n_chat_window():
                             hbox:
                                 xalign 0.0
                                 spacing 9
-                                add "images/avatars/n_unknown.png" xsize 38 ysize 38
+                                add "images/avatars/n_unknown.jpg" xsize 38 ysize 38
                                 frame:
                                     xmaximum int(config.screen_width * 0.41)
                                     background "#2a364b"
@@ -80,7 +80,7 @@ screen n_chat_window():
                                     background "#365d85"
                                     padding (14, 9)
                                     text message substitute False size 20 color "#f4f6fa" xalign 1.0
-                                add "images/avatars/player_unknown.png" xsize 38 ysize 38
+                                add "images/avatars/player_unknown.jpg" xsize 38 ysize 38
 
 
 # 这个项目从空目录搭建，因此明确提供原生叙事用的底部对话框。

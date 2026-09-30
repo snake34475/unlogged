@@ -17,12 +17,12 @@
 
 ## 母版
 
-`game/images/characters/n/master_front.png` 是唯一锁定的正面全身中性参考。后续立绘必须保持脸型、发色层次、服装、身材比例和克制的表情基调。
+`game/images/characters/n/master_front.jpg` 是唯一锁定的正面全身中性参考。后续立绘必须保持脸型、发色层次、服装、身材比例和克制的表情基调。
 
 ## 素材优先级
 
 1. 正面中性母版（已完成）
-2. 第二章使用的半身 `normal / smile / tease / serious` 四张（已完成，透明背景）
+2. 第二章使用的半身 `normal / smile / tease / serious` 四张（已完成）
 3. 特殊表情 `empty`（用于第一章结尾或异常状态）
 4. 三视图（需要大量动态姿势或换装时再做）
 5. Q 版表情（用于菜单、成就或轻喜剧交互时再做）

@@ -11,7 +11,8 @@ init python:
     build.classify("docs/**", None)
     build.classify("README.md", None)
 
-# 使用随游戏分发的开源中文字体，确保 Web/WASM 运行时也能读取。
+# Ren'Py Web 不能像 CSS font-family 一样可靠地访问访问者的系统字体。
+# 此 WOFF2 是从游戏当前文本生成的 Noto Sans CJK SC 子集，既保证中文可读，
+# 又避免在首屏下载完整的 16 MB 字体。新增或修改文案后须重新生成该子集。
 style default:
-    font "fonts/NotoSansCJKsc-Regular.otf"
-
+    font "fonts/UnloggedText.woff2"

@@ -18,7 +18,7 @@
 
 如果你的版本没有项目目录设置入口，可先点击“创建新项目”，在首次出现的“项目目录”选择框中选择 `C:\Users\10988\Desktop\coding\ai-game`；创建完成后刷新 Launcher，`longzu` 也会出现在项目列表中。临时创建的空项目随后可在资源管理器中删除。
 
-项目目前使用纯色 UI 和文字音效占位。中文文本使用随项目分发的 Noto Sans CJK SC 字体（`game/fonts/NotoSansCJKsc-Regular.otf`），因此 Windows 与 Web 构建均不依赖系统字体；其许可证位于 `game/fonts/OFL.txt`。以后可以直接替换 `game/` 内的界面与音频实现。
+项目目前使用纯色 UI 和文字音效占位。中文文本使用随项目分发的 Noto Sans CJK SC 文本子集（`game/fonts/UnloggedText.woff2`），因此 Windows 与 Web 构建均不依赖系统字体；其许可证位于 `game/fonts/OFL.txt`。子集只覆盖当前游戏文案，新增或修改文本后须重新生成。以后可以直接替换 `game/` 内的界面与音频实现。
 
 ## 发布到 GitHub Pages
 
@@ -33,4 +33,3 @@
 - `docs/story-bible.md`：叙事规则、角色边界与原创原则
 - `docs/chapter-01-flow.md`：第一章分支结构
 - `docs/asset-list.md`：后续素材清单
-
