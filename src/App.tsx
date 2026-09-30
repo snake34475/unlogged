@@ -56,6 +56,8 @@ export default function App() {
   const [game, setGame] = useState<GameState>(loadState);
   const [showTitle, setShowTitle] = useState(() => game.currentId === chapter01Start && game.chatHistory.length === 0);
   const [confirmRestart, setConfirmRestart] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [textSpeed, setTextSpeed] = useState<"慢" | "标准" | "快">("标准");
   const current = getNode(game.currentId)!;
   const [displayedText, setDisplayedText] = useState("");
 
@@ -80,9 +82,9 @@ export default function App() {
       index += 1;
       setDisplayedText(current.text.slice(0, index));
       if (index >= current.text.length) window.clearInterval(timer);
-    }, 48);
+    }, textSpeed === "慢" ? 70 : textSpeed === "快" ? 28 : 48);
     return () => window.clearInterval(timer);
-  }, [current]);
+  }, [current, textSpeed]);
 
   const advance = () => {
     if (current.kind !== "line") return;
@@ -114,6 +116,7 @@ export default function App() {
   const restart = () => {
     setGame(initialState());
     setConfirmRestart(false);
+    setMenuOpen(false);
     setShowTitle(true);
   };
 
@@ -121,7 +124,9 @@ export default function App() {
     <section className="game" aria-label="未登录的人，第一章">
       {showTitle && <section className="title-transition" aria-label="第一章，未登录的人"><p>第一章</p><h1>未登录的人</h1></section>}
       <div className="hud">
-        <button className="restart-icon" type="button" onClick={() => setConfirmRestart(true)} aria-label="重新开始" title="重新开始">↻</button>
+        <button className="menu-icon" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-label={menuOpen ? "关闭菜单" : "打开菜单"}>☰</button>
+        <button className="restart-icon" type="button" onClick={() => { setMenuOpen(false); setConfirmRestart(true); }} aria-label="重新开始" title="重新开始">↻</button>
+        {menuOpen && <section className="game-menu" aria-label="游戏菜单"><p>第一章 · 未登录的人</p><div className="speed-control"><span>文字速度</span>{(["慢", "标准", "快"] as const).map((speed) => <button type="button" className={textSpeed === speed ? "active" : ""} onClick={() => setTextSpeed(speed)} key={speed}>{speed}</button>)}</div><button className="menu-restart" type="button" onClick={() => { setMenuOpen(false); setConfirmRestart(true); }}>重新开始</button></section>}
         {confirmRestart && <section className="restart-confirm" role="dialog" aria-label="确认重新开始"><p>要从头开始吗？</p><div><button type="button" onClick={() => setConfirmRestart(false)}>取消</button><button className="danger" type="button" onClick={restart}>重新开始</button></div></section>}
       </div>
       {current.kind !== "end" && <>
@@ -145,8 +150,8 @@ function ChatBubble({ line }: { line: ChatLine }) {
 }
 
 function ProfileCard() {
-  const fields = [["个性签名", ""], ["性别", "未知"], ["地区", "未知"], ["生日", "--"], ["注册日期", "--"]];
-  return <section className="profile-card" aria-label="N 的 QQ 资料"><div className="profile-heading"><span>详细资料</span><i aria-hidden="true">×</i></div><div className="profile-identity"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>QQ 号：--</span></div></div><div className="profile-fields">{fields.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value || "未填写"}</strong></div>)}</div></section>;
+  const fields = [["个性签名", ""], ["性别", "未知"], ["地区", "未知"], ["生日", "保密"]];
+  return <section className="profile-card" aria-label="N 的 QQ 资料"><div className="profile-heading"><span>详细资料</span><i aria-hidden="true">×</i></div><div className="profile-identity"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>QQ 号：20478139</span></div></div><div className="profile-fields">{fields.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value || "未填写"}</strong></div>)}</div></section>;
 }
 
 function FriendsList() {

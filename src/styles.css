@@ -29,7 +29,7 @@ button { font: inherit; }
 }
 
 .hud { position: absolute; z-index: 12; top: 18px; right: 18px; }
-.restart-icon {
+.menu-icon, .restart-icon {
   width: 42px;
   height: 42px;
   border: 1px solid #b6c7d14d;
@@ -42,7 +42,26 @@ button { font: inherit; }
   line-height: 1;
   transition: background .16s, transform .16s;
 }
+.menu-icon { margin-right: 8px; font-size: 17px; }
 .restart-icon:hover { background: #24394cad; transform: rotate(-24deg); }
+.menu-icon:hover { background: #24394cad; }
+.game-menu {
+  position: absolute;
+  top: 54px;
+  right: 0;
+  width: 256px;
+  padding: 15px;
+  border: 1px solid #c4d5e359;
+  border-radius: 14px;
+  background: #101a25ed;
+  box-shadow: 0 18px 42px #0009;
+  backdrop-filter: blur(16px);
+}
+.game-menu > p { margin: 0 0 15px; color: #d8e4ee; font-size: 13px; }
+.speed-control { display: grid; grid-template-columns: 1fr repeat(3, auto); align-items: center; gap: 5px; padding: 10px 0 14px; border-top: 1px solid #b0c4d31c; border-bottom: 1px solid #b0c4d31c; }
+.speed-control span { color: #9aabba; font-size: 13px; }.speed-control button { min-width: 34px; padding: 5px 6px; border: 0; border-radius: 7px; color: #aebdca; background: transparent; cursor: pointer; font-size: 12px; }.speed-control button.active { color: #f3f7fb; background: #34516d; }
+.menu-restart { width: 100%; margin-top: 12px; padding: 8px; border: 0; border-radius: 8px; color: #e7eef5; background: #26394a; cursor: pointer; font-size: 13px; text-align: left; }
+.menu-restart:hover { background: #36516b; }
 .restart-confirm {
   position: absolute;
   top: 54px;

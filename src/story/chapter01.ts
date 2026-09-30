@@ -108,7 +108,7 @@ const sleepSequence = lines("sleep", [["n", "你准备睡了？"], ["me", "嗯�
 
 const friendProfileSequence = lines("friend-profile", [
   ["system", "资料页是空的。"],
-  ["narrator", "没有地区，没有签名，注册日期显示为 --。"],
+  ["narrator", "没有地区，也没有签名。"],
   ["n", "看完了吗？"],
   ["me", "你资料怎么是空的？"],
   ["n", "因为没有什么值得写。"],
