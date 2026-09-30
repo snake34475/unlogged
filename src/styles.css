@@ -42,7 +42,7 @@ button { font: inherit; }
   line-height: 1;
   transition: background .16s, transform .16s;
 }
-.history-icon { width: auto; padding: 0 14px; margin-right: 8px; font-size: 13px; }
+.history-icon { width: auto; padding: 0 14px; margin-right: 8px; border-radius: 11px; font-size: 13px; }
 .menu-icon { margin-right: 8px; font-size: 17px; }
 .restart-icon:hover { background: #24394cad; transform: rotate(-24deg); }
 .menu-icon:hover { background: #24394cad; }
