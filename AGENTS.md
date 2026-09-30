@@ -4,6 +4,13 @@
 
 《未登录的人》是一个以深夜聊天为核心的视觉小说原型。当前版本只包含第一章（约 8–12 分钟）及三个结局。根目录的 Vite + React + TypeScript 实现是推荐的 Web 版本；`game/` 保留为 Ren'Py 原型与桌面发布路径。
 
+## 项目工作流
+
+- 用户要求试玩、测试、评审、分析剧情或比较同类作品时，使用 `.codex/skills/unlogged-experience-review/SKILL.md`。
+- 用户要求实现、修复或将选定方案落地时，使用 `.codex/skills/unlogged-development/SKILL.md`；若请求同时包含设计与实现，先完成必要的体验判断，再实施用户要求的范围。
+- 两个 Skill 可分别通过 `$unlogged-experience-review`、`$unlogged-development` 明确指定；自然语言请求也可按上述条件触发。Skill 定义工作方法，不会自动创建独立子 Agent。只有用户要求多个 Agent 或明确委派时，才按体验评审与开发职责拆分任务。
+- `docs/demo-review-and-options.md` 是当前第一章评审与方案参考；`docs/ai-team-design.md` 记录角色交接方式。它们不是自动执行的 Agent 配置。
+
 ## 目录职责
 
 - `game/script.rpy`：章节流程、菜单、状态变量与结局。新剧情和分支放在这里或按章节新增 `.rpy` 文件。
