@@ -50,7 +50,7 @@ function enterNode(id: string, state: GameState): GameState {
   }
 }
 
-const nameFor: Record<Sender, string> = { n: "N", me: "我", narrator: "", system: "" };
+const nameFor: Record<Sender, string> = { n: "N", me: "我", narrator: "我 · 心声", system: "QQ · 系统" };
 
 export default function App() {
   const [game, setGame] = useState<GameState>(loadState);
@@ -101,10 +101,12 @@ export default function App() {
       </div>
       {current.kind !== "end" && <>
         <div className="clock">23:47</div>
-        {game.chatVisible && <section className="chat-window" aria-label="与 N 的聊天记录"><div className="chat-heading"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>在线</span></div></div><div className="messages">{game.chatHistory.slice(-4).map((line, index) => <ChatBubble key={`${line.text}-${index}`} line={line} />)}</div></section>}
+        {game.chatVisible && !current.profile && !current.friendsList && <section className="chat-window" aria-label="与 N 的聊天记录"><div className="chat-heading"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>在线</span></div></div><div className="messages">{game.chatHistory.slice(-4).map((line, index) => <ChatBubble key={`${line.text}-${index}`} line={line} />)}</div></section>}
+        {current.profile && <ProfileCard />}
+        {current.friendsList && <FriendsList />}
         {!game.chatVisible && <div className="opening-space" aria-hidden="true" />}
         {current.friendRequest && <section className="request" aria-label="N 请求添加你为好友"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>请求添加你为好友</span><small>刚刚</small></div></section>}
-        {current.kind === "line" && <button className={`say ${current.sender}`} onClick={advance} aria-label="继续">{nameFor[current.sender] && <strong>{nameFor[current.sender]}</strong>}<span>{current.text}</span><small>点击继续</small></button>}
+        {current.kind === "line" && <button className={`say ${current.sender}`} onClick={advance} aria-label="继续"><strong>{nameFor[current.sender]}</strong><span>{current.text}</span><small>点击继续 →</small></button>}
         {current.kind === "choice" && <section className="choices"><span>{current.prompt}</span>{current.options.map((option, index) => <button key={option.label} onClick={() => choose(index)}>{option.label}</button>)}</section>}
       </>}
       {current.kind === "end" && <section className="ending"><p>章节结束</p><h2>{current.title}</h2><button onClick={restart}>从头开始</button></section>}
@@ -115,4 +117,13 @@ export default function App() {
 function ChatBubble({ line }: { line: ChatLine }) {
   const isN = line.sender === "n";
   return <div className={`message ${isN ? "from-n" : "from-me"}`}><img src={isN ? nAvatarUrl : playerAvatarUrl} alt="" /><div><small>{isN ? "N" : "我"}</small><p>{line.text}</p></div></div>;
+}
+
+function ProfileCard() {
+  const fields = [["个性签名", ""], ["性别", "未知"], ["地区", "未知"], ["生日", "--"], ["注册日期", "--"]];
+  return <section className="profile-card" aria-label="N 的 QQ 资料"><div className="profile-heading"><span>详细资料</span><i aria-hidden="true">×</i></div><div className="profile-identity"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>QQ 号：--</span></div></div><div className="profile-fields">{fields.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value || "未填写"}</strong></div>)}</div></section>;
+}
+
+function FriendsList() {
+  return <section className="friends-list" aria-label="好友列表"><header><strong>我的好友</strong><span>1 / 1</span></header><div className="friend-row offline"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>上次在线：三年前</span></div><small>离线</small></div></section>;
 }

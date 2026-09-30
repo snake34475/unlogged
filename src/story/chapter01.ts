@@ -1,7 +1,7 @@
 export type Sender = "n" | "me" | "narrator" | "system";
 export type Scores = { trust: number; curiosity: number; avoidance: number };
 
-type SceneState = { friendRequest?: boolean };
+type SceneState = { friendRequest?: boolean; profile?: boolean; friendsList?: boolean };
 type LineNode = SceneState & { kind: "line"; id: string; sender: Sender; text: string; next: string };
 type ChoiceNode = SceneState & { kind: "choice"; id: string; prompt: string; options: Array<{ label: string; next: string; effects?: Partial<Scores>; showChat?: boolean }> };
 type ResolveNode = SceneState & { kind: "resolve"; id: string; resolve: (scores: Scores) => string };
@@ -28,8 +28,12 @@ const endingTomorrow = lines("ending-tomorrow", [
   ["me", "找你？"],
   ["n", "找一个人。"],
   ["n", "到时候你就知道了。"],
-  ["system", "N 已离线。她的头像灰下去前，我好像看见状态栏写着：从未登录。"],
+  ["system", "N 已离线。"],
+  ["narrator", "我点开好友列表。"],
+  ["system", "N 的头像已经灰了下去。"],
+  ["system", "上次在线：三年前。"],
 ], "end-tomorrow");
+for (let index = 6; index < 10; index += 1) nodes[`ending-tomorrow-${index}`].friendsList = true;
 nodes["end-tomorrow"] = { kind: "end", id: "end-tomorrow", title: "END 01 · 明天见" };
 
 const endingLoop = lines("ending-loop", [
@@ -102,6 +106,15 @@ nodes["sleep-choice"] = {
 
 const sleepSequence = lines("sleep", [["n", "你准备睡了？"], ["me", "嗯。"], ["n", "骗人。"], ["n", "你刚才打开游戏了。"]], "sleep-choice");
 
+const friendProfileSequence = lines("friend-profile", [
+  ["system", "资料页是空的。"],
+  ["narrator", "没有地区，没有签名，注册日期显示为 --。"],
+  ["n", "看完了吗？"],
+  ["me", "你资料怎么是空的？"],
+  ["n", "因为没有什么值得写。"],
+], sleepSequence);
+for (let index = 0; index < 5; index += 1) nodes[`friend-profile-${index}`].profile = true;
+
 nodes["friend-request"] = {
   kind: "choice",
   id: "friend-request",
@@ -109,7 +122,7 @@ nodes["friend-request"] = {
   options: [
     { label: "同意。", next: lines("friend-agree", [["n", "晚上好。"], ["me", "你谁？"], ["n", "这么直接？那现在认识了。"]], sleepSequence), effects: { trust: 1 }, showChat: true },
     { label: "拒绝。", next: lines("friend-decline", [["system", "好友请求已拒绝。"], ["narrator", "两秒后，账号 N 再次请求添加你为好友。"], ["n", "你点拒绝的时候，动作倒是挺快。"], ["me", "你怎么能发消息？"], ["n", "现在同意我，就能慢慢解释。"]], sleepSequence), effects: { avoidance: 1 }, showChat: true },
-    { label: "先看一下资料。", next: lines("friend-profile", [["system", "资料页是空的。"], ["narrator", "没有地区，没有签名，注册日期显示为 --。"], ["n", "看完了吗？"], ["me", "你资料怎么是空的？"], ["n", "因为没有什么值得写。"]], sleepSequence), effects: { curiosity: 1 }, showChat: true },
+    { label: "先看一下资料。", next: friendProfileSequence, effects: { curiosity: 1 }, showChat: true },
   ],
 };
 
