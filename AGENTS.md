@@ -2,11 +2,14 @@
 
 ## 项目概览
 
-《未登录的人》是一个以深夜聊天为核心的 Ren'Py 视觉小说原型。当前版本只包含第一章（约 8–12 分钟）及三个结局；没有 Node、Python 包管理或自动化测试配置。修改应优先保持可直接由 Ren'Py Launcher 打开和运行。
+《未登录的人》是一个以深夜聊天为核心的视觉小说原型。当前版本只包含第一章（约 8–12 分钟）及三个结局。根目录的 Vite + React + TypeScript 实现是推荐的 Web 版本；`game/` 保留为 Ren'Py 原型与桌面发布路径。
 
 ## 目录职责
 
 - `game/script.rpy`：章节流程、菜单、状态变量与结局。新剧情和分支放在这里或按章节新增 `.rpy` 文件。
+- `src/App.tsx`：Web 第一章状态机、分支、结局和本地存档。React UI 使用 DOM/CSS，不使用 Canvas 或 WebAssembly。
+- `src/styles.css`：Web UI 样式与 CSS 中文字体回退策略。
+- `package.json`：Web 开发与构建命令。执行 `npm run build` 生成 `dist/`；不要提交 `node_modules/` 或 `dist/`。
 - `game/screens.rpy`：聊天背景、好友申请、聊天窗口、对话框、选项和确认框等自定义 screen。
 - `game/options.rpy`：游戏元数据、构建排除规则和全局样式。中文字体由这里的 `style default` 配置。
 - `game/images/`：运行时图像。`bg/` 为背景，`avatars/` 为头像，`characters/` 为角色立绘。

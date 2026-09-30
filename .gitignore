@@ -19,3 +19,8 @@ gpt-talk.txt
 .idea/
 Thumbs.db
 Desktop.ini
+
+# Vite / Node.js generated files
+node_modules/
+dist/
+*.tsbuildinfo

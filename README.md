@@ -11,6 +11,19 @@
 
 ## 运行
 
+### 纯 Web 版（推荐）
+
+第一章已迁移为 Vite + React + TypeScript 的静态网页实现；它不加载 Ren'Py 的 WebAssembly 运行时，适合 GitHub Pages 和移动浏览器。
+
+```bash
+npm install
+npm run dev
+```
+
+执行 `npm run build` 会生成可部署的 `dist/` 目录。该版本会自动将当前章节进度、聊天记录和隐藏倾向保存在浏览器本地；点击“重新开始”即可清除并开始新周目。
+
+### Ren'Py 原型
+
 1. 安装 [Ren'Py](https://www.renpy.org/)。
 2. 在 Launcher 的偏好设置中，将“Projects Directory / 项目目录”设为 `C:\Users\10988\Desktop\coding\ai-game`（即 `longzu` 的上一层目录）。
 3. 点击“Refresh / 刷新”或重启 Launcher；它会自动扫描并显示 `longzu`。
