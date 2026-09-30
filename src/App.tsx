@@ -54,11 +54,19 @@ const nameFor: Record<Sender, string> = { n: "N", me: "我", narrator: "", syste
 
 export default function App() {
   const [game, setGame] = useState<GameState>(loadState);
+  const [showTitle, setShowTitle] = useState(() => game.currentId === chapter01Start && game.chatHistory.length === 0);
+  const [confirmRestart, setConfirmRestart] = useState(false);
   const current = getNode(game.currentId)!;
 
   useEffect(() => {
     localStorage.setItem(SAVE_KEY, JSON.stringify(game));
   }, [game]);
+
+  useEffect(() => {
+    if (!showTitle) return;
+    const timeout = window.setTimeout(() => setShowTitle(false), 2600);
+    return () => window.clearTimeout(timeout);
+  }, [showTitle]);
 
   const advance = () => {
     if (current.kind !== "line") return;
@@ -78,20 +86,28 @@ export default function App() {
     });
   };
 
-  const isFriendRequest = current.kind === "choice" && current.id === "friend-request";
+  const restart = () => {
+    setGame(initialState());
+    setConfirmRestart(false);
+    setShowTitle(true);
+  };
 
   return <main className="game-shell" style={{ backgroundImage: `linear-gradient(#070b1299, #070b12d9), url(${backgroundUrl})` }}>
     <section className="game" aria-label="未登录的人，第一章">
-      <header><div><p>第一章</p><h1>未登录的人</h1></div><button className="reset" onClick={() => setGame(initialState())}>重新开始</button></header>
+      {showTitle && <section className="title-transition" aria-label="第一章，未登录的人"><p>第一章</p><h1>未登录的人</h1></section>}
+      <div className="hud">
+        <button className="restart-icon" type="button" onClick={() => setConfirmRestart(true)} aria-label="重新开始" title="重新开始">↻</button>
+        {confirmRestart && <section className="restart-confirm" role="dialog" aria-label="确认重新开始"><p>要从头开始吗？</p><div><button type="button" onClick={() => setConfirmRestart(false)}>取消</button><button className="danger" type="button" onClick={restart}>重新开始</button></div></section>}
+      </div>
       {current.kind !== "end" && <>
         <div className="clock">23:47</div>
         {game.chatVisible && <section className="chat-window" aria-label="与 N 的聊天记录"><div className="chat-heading"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>在线</span></div></div><div className="messages">{game.chatHistory.slice(-4).map((line, index) => <ChatBubble key={`${line.text}-${index}`} line={line} />)}</div></section>}
         {!game.chatVisible && <div className="opening-space" aria-hidden="true" />}
-        {isFriendRequest && <section className="request" aria-label="好友申请"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>请求添加你为好友</span><small>刚刚</small></div></section>}
+        {current.friendRequest && <section className="request" aria-label="N 请求添加你为好友"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>请求添加你为好友</span><small>刚刚</small></div></section>}
         {current.kind === "line" && <button className={`say ${current.sender}`} onClick={advance} aria-label="继续">{nameFor[current.sender] && <strong>{nameFor[current.sender]}</strong>}<span>{current.text}</span><small>点击继续</small></button>}
         {current.kind === "choice" && <section className="choices"><span>{current.prompt}</span>{current.options.map((option, index) => <button key={option.label} onClick={() => choose(index)}>{option.label}</button>)}</section>}
       </>}
-      {current.kind === "end" && <section className="ending"><p>章节结束</p><h2>{current.title}</h2><button onClick={() => setGame(initialState())}>从头开始</button></section>}
+      {current.kind === "end" && <section className="ending"><p>章节结束</p><h2>{current.title}</h2><button onClick={restart}>从头开始</button></section>}
     </section>
   </main>;
 }

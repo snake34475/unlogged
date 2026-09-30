@@ -1,10 +1,11 @@
 export type Sender = "n" | "me" | "narrator" | "system";
 export type Scores = { trust: number; curiosity: number; avoidance: number };
 
-type LineNode = { kind: "line"; id: string; sender: Sender; text: string; next: string };
-type ChoiceNode = { kind: "choice"; id: string; prompt: string; options: Array<{ label: string; next: string; effects?: Partial<Scores>; showChat?: boolean }> };
-type ResolveNode = { kind: "resolve"; id: string; resolve: (scores: Scores) => string };
-type EndNode = { kind: "end"; id: string; title: string };
+type SceneState = { friendRequest?: boolean };
+type LineNode = SceneState & { kind: "line"; id: string; sender: Sender; text: string; next: string };
+type ChoiceNode = SceneState & { kind: "choice"; id: string; prompt: string; options: Array<{ label: string; next: string; effects?: Partial<Scores>; showChat?: boolean }> };
+type ResolveNode = SceneState & { kind: "resolve"; id: string; resolve: (scores: Scores) => string };
+type EndNode = SceneState & { kind: "end"; id: string; title: string };
 export type StoryNode = LineNode | ChoiceNode | ResolveNode | EndNode;
 
 const nodes: Record<string, StoryNode> = {};
@@ -133,6 +134,12 @@ export const chapter01Start = lines("opening", [
   ["system", "滴。"],
   ["system", "一个陌生账号请求添加你为好友。"],
 ], "opening-choice");
+
+// Ren'Py shows the friend request before the notification sound, then keeps it
+// visible through the two explanatory lines and the decision.
+nodes["opening-6"].friendRequest = true;
+nodes["opening-7"].friendRequest = true;
+nodes["friend-request"].friendRequest = true;
 
 export function getNode(id: string): StoryNode | undefined {
   return nodes[id];
