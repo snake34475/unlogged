@@ -57,6 +57,7 @@ export default function App() {
   const [showTitle, setShowTitle] = useState(() => game.currentId === chapter01Start && game.chatHistory.length === 0);
   const [confirmRestart, setConfirmRestart] = useState(false);
   const current = getNode(game.currentId)!;
+  const [displayedText, setDisplayedText] = useState("");
 
   useEffect(() => {
     localStorage.setItem(SAVE_KEY, JSON.stringify(game));
@@ -68,9 +69,33 @@ export default function App() {
     return () => window.clearTimeout(timeout);
   }, [showTitle]);
 
+  useEffect(() => {
+    if (current.kind !== "line") {
+      setDisplayedText("");
+      return;
+    }
+    setDisplayedText("");
+    let index = 0;
+    const timer = window.setInterval(() => {
+      index += 1;
+      setDisplayedText(current.text.slice(0, index));
+      if (index >= current.text.length) window.clearInterval(timer);
+    }, 48);
+    return () => window.clearInterval(timer);
+  }, [current]);
+
   const advance = () => {
     if (current.kind !== "line") return;
     setGame((state) => enterNode(current.next, state));
+  };
+
+  const completeOrAdvance = () => {
+    if (current.kind !== "line") return;
+    if (displayedText.length < current.text.length) {
+      setDisplayedText(current.text);
+      return;
+    }
+    advance();
   };
 
   const choose = (optionIndex: number) => {
@@ -106,7 +131,7 @@ export default function App() {
         {current.friendsList && <FriendsList />}
         {!game.chatVisible && <div className="opening-space" aria-hidden="true" />}
         {current.friendRequest && <section className="request" aria-label="N 请求添加你为好友"><img src={nAvatarUrl} alt="N 的头像" /><div><strong>N</strong><span>请求添加你为好友</span><small>刚刚</small></div></section>}
-        {current.kind === "line" && <button className={`say ${current.sender}`} onClick={advance} aria-label="继续"><strong>{nameFor[current.sender]}</strong><span>{current.text}</span><small>点击继续 →</small></button>}
+        {current.kind === "line" && <button className={`say ${current.sender}`} onClick={completeOrAdvance} aria-label={displayedText.length < current.text.length ? "显示完整文字" : "继续"}><strong>{nameFor[current.sender]}</strong><span>{displayedText}{displayedText.length < current.text.length && <i className="typing-caret" aria-hidden="true">_</i>}</span>{displayedText.length >= current.text.length && <small>点击继续 →</small>}</button>}
         {current.kind === "choice" && <section className="choices"><span>{current.prompt}</span>{current.options.map((option, index) => <button key={option.label} onClick={() => choose(index)}>{option.label}</button>)}</section>}
       </>}
       {current.kind === "end" && <section className="ending"><p>章节结束</p><h2>{current.title}</h2><button onClick={restart}>从头开始</button></section>}
