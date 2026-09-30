@@ -47,23 +47,6 @@ button { font: inherit; }
 .restart-icon:hover { background: #24394cad; transform: rotate(-24deg); }
 .menu-icon:hover { background: #24394cad; }
 .history-icon:hover { background: #24394cad; }
-.game-menu {
-  position: absolute;
-  top: 54px;
-  right: 0;
-  width: 256px;
-  padding: 15px;
-  border: 1px solid #c4d5e359;
-  border-radius: 14px;
-  background: #101a25ed;
-  box-shadow: 0 18px 42px #0009;
-  backdrop-filter: blur(16px);
-}
-.game-menu > p { margin: 0 0 15px; color: #d8e4ee; font-size: 13px; }
-.speed-control { display: grid; grid-template-columns: 1fr repeat(3, auto); align-items: center; gap: 5px; padding: 10px 0 14px; border-top: 1px solid #b0c4d31c; border-bottom: 1px solid #b0c4d31c; }
-.speed-control span { color: #9aabba; font-size: 13px; }.speed-control button { min-width: 34px; padding: 5px 6px; border: 0; border-radius: 7px; color: #aebdca; background: transparent; cursor: pointer; font-size: 12px; }.speed-control button.active { color: #f3f7fb; background: #34516d; }
-.menu-restart { width: 100%; margin-top: 12px; padding: 8px; border: 0; border-radius: 8px; color: #e7eef5; background: #26394a; cursor: pointer; font-size: 13px; text-align: left; }
-.menu-restart:hover { background: #36516b; }
 .restart-confirm {
   position: absolute;
   top: 54px;
@@ -78,6 +61,35 @@ button { font: inherit; }
 }
 
 .history-scrim { position: absolute; z-index: 15; inset: 0; border: 0; background: #02060a8c; cursor: default; }
+.menu-scrim { position: absolute; z-index: 15; inset: 0; border: 0; background: #02060a8c; cursor: default; }
+.menu-panel {
+  position: absolute;
+  z-index: 16;
+  top: 50%;
+  left: 50%;
+  width: min(80vw, 1120px);
+  height: min(74dvh, 720px);
+  transform: translate(-50%, -50%);
+  display: grid;
+  grid-template-columns: 244px 1fr;
+  overflow: hidden;
+  border: 1px solid #b0c4d34a;
+  border-radius: 24px;
+  background: #101827f5;
+  box-shadow: 0 28px 90px #000c;
+  backdrop-filter: blur(18px);
+}
+.menu-panel aside { display: flex; flex-direction: column; padding: 28px 16px 18px; border-right: 1px solid #b0c4d326; background: #142238ee; }
+.menu-brand { margin: 0 10px 30px; }.menu-brand span, .menu-brand small { display: block; }.menu-brand span { color: #f1f6fa; font-size: 14px; letter-spacing: .16em; }.menu-brand small { margin-top: 7px; color: #8fa2b5; font-size: 11px; }
+.continue-game, .menu-panel nav button, .menu-bottom button { width: 100%; border: 0; border-radius: 10px; color: #b7c8d7; background: transparent; cursor: pointer; font-size: 14px; text-align: left; }
+.continue-game { margin-bottom: 18px; padding: 11px 12px; color: #edf5fb; background: #33516e; }.continue-game:hover { background: #426988; }
+.menu-panel nav { display: grid; gap: 3px; }.menu-panel nav button { padding: 10px 12px; }.menu-panel nav button:hover, .menu-panel nav button.active { color: #fff; background: #2b435d; }
+.menu-bottom { margin-top: auto; padding-top: 16px; border-top: 1px solid #b0c4d326; }.menu-bottom button { padding: 9px 12px; color: #90a3b5; }.menu-bottom button:first-child:hover { color: #f3a1b3; background: #4a2f3b; }.menu-bottom button:disabled { cursor: not-allowed; opacity: .45; }
+.menu-panel main { position: relative; padding: clamp(34px, 5vw, 70px); overflow-y: auto; }.menu-close { position: absolute; top: 20px; right: 22px; width: 36px; height: 36px; border: 0; border-radius: 50%; color: #aebdca; background: transparent; cursor: pointer; font-size: 23px; }.menu-close:hover { color: #fff; background: #314960; }
+.menu-content { max-width: 620px; }.menu-kicker { margin: 0 0 9px; color: #7f9db9; font-size: 12px; letter-spacing: .16em; }.menu-content h2 { margin: 0 0 30px; color: #edf5fb; font-size: 32px; font-weight: 500; }
+.chapter-card { position: relative; width: 100%; min-height: 196px; padding: 25px; display: flex; flex-direction: column; align-items: flex-start; border: 1px solid #9bb9d154; border-radius: 18px; color: #eef5fb; background: linear-gradient(135deg, #233b55e8, #172638e8); cursor: pointer; text-align: left; transition: transform .16s, border-color .16s; }.chapter-card:hover { transform: translateY(-2px); border-color: #bbd8ed; }.chapter-card span { color: #a1bed8; font-size: 12px; letter-spacing: .12em; }.chapter-card strong { margin-top: auto; font-size: 27px; font-weight: 500; }.chapter-card small { margin-top: 8px; color: #adbdcc; }.chapter-card i { position: absolute; right: 24px; bottom: 25px; color: #e992a7; font-style: normal; }
+.empty-state { min-height: 170px; padding: 26px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; border: 1px solid #b0c4d326; border-radius: 18px; background: #172334ab; }.empty-state strong { color: #e9f2f9; font-size: 17px; font-weight: 500; }.empty-state span { margin-top: 10px; color: #9eafbe; }.empty-state small { margin-top: 22px; color: #72879a; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; border-top: 1px solid #b0c4d326; border-bottom: 1px solid #b0c4d326; color: #c6d3de; }.setting-row > div { display: flex; gap: 6px; }.setting-row button { min-width: 42px; padding: 7px 10px; border: 0; border-radius: 9px; color: #aebdca; background: transparent; cursor: pointer; }.setting-row button.active { color: #f3f7fb; background: #34516d; }
 .history-panel {
   position: absolute;
   z-index: 16;
@@ -90,7 +102,7 @@ button { font: inherit; }
   flex-direction: column;
   overflow: hidden;
   border: 1px solid #b0c4d34a;
-  border-radius: 17px;
+  border-radius: 24px;
   background: #101827f2;
   box-shadow: 0 28px 90px #000c;
   backdrop-filter: blur(18px);
@@ -308,4 +320,5 @@ button { font: inherit; }
   .profile-card, .friends-list { top: 14%; width: calc(100% - 28px); }
   .history-icon { padding: 0 10px; font-size: 12px; }.menu-icon { margin-right: 0; }.hud { display: flex; align-items: center; }
   .history-panel { width: calc(100% - 28px); height: min(82dvh, 720px); }.history-panel header { min-height: 60px; padding: 0 16px; }.history-body { padding: 22px; }.history-entry { max-width: 90%; }.history-entry p { font-size: 16px; }
+  .menu-panel { width: calc(100% - 28px); height: min(82dvh, 720px); grid-template-columns: 1fr; }.menu-panel aside { padding: 16px; border-right: 0; border-bottom: 1px solid #b0c4d326; }.menu-brand { margin: 0 4px 12px; }.menu-panel nav { grid-template-columns: repeat(5, 1fr); gap: 2px; }.menu-panel nav button { padding: 8px 2px; font-size: 11px; text-align: center; }.continue-game { position: absolute; right: 64px; top: 18px; z-index: 1; width: auto; margin: 0; padding: 7px 10px; font-size: 12px; }.menu-bottom { display: none; }.menu-panel main { padding: 42px 22px 24px; }.menu-content h2 { margin-bottom: 22px; font-size: 27px; }.chapter-card { min-height: 170px; }.menu-close { top: 14px; right: 14px; }
 }
