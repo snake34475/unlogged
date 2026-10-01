@@ -157,3 +157,9 @@ nodes["friend-request"].friendRequest = true;
 export function getNode(id: string): StoryNode | undefined {
   return nodes[id];
 }
+
+export function getVoicedLines(): Array<Pick<LineNode, "id" | "sender" | "text">> {
+  return Object.values(nodes).filter((node): node is LineNode =>
+    node.kind === "line" && (node.sender === "me" || node.sender === "n"),
+  );
+}

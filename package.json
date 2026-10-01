@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "voice:generate": "node scripts/generate-voice.mjs",
+    "voice:sync-renpy": "node scripts/sync-renpy-voice.mjs"
   },
   "dependencies": {
     "react": "19.3.0",

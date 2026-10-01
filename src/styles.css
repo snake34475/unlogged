@@ -29,7 +29,7 @@ button { font: inherit; }
 }
 
 .hud { position: absolute; z-index: 12; top: 18px; right: 18px; }
-.history-icon, .menu-icon, .restart-icon {
+.history-icon, .menu-icon, .restart-icon, .voice-icon {
   width: 42px;
   height: 42px;
   border: 1px solid #b6c7d14d;
@@ -43,9 +43,13 @@ button { font: inherit; }
   transition: background .16s, transform .16s;
 }
 .history-icon { width: auto; padding: 0 14px; margin-right: 8px; border-radius: 11px; font-size: 13px; }
+.voice-icon { margin-right: 8px; font-size: 15px; }
+.voice-needs-gesture { width: auto; padding: 0 12px; border-radius: 11px; font-size: 12px; }
+.voice-icon:hover { background: #24394cad; }
 .menu-icon { margin-right: 8px; font-size: 17px; }
 .restart-icon:hover { background: #24394cad; transform: rotate(-24deg); }
 .menu-icon:hover { background: #24394cad; }
+.setting-row button:disabled { opacity: .4; cursor: not-allowed; }
 .history-icon:hover { background: #24394cad; }
 .restart-confirm {
   position: absolute;

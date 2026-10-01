@@ -3,6 +3,7 @@ import backgroundUrl from "../game/images/bg/room_night.jpg";
 import nAvatarUrl from "../game/images/avatars/n_unknown.jpg";
 import playerAvatarUrl from "../game/images/avatars/player_unknown.jpg";
 import { chapter01Start, getNode, type Scores, type Sender } from "./story/chapter01";
+import { hasAnyVoiceClips, useVoicePlayback } from "./voice/useVoicePlayback";
 
 type ChatLine = { sender: "n" | "me"; text: string };
 type StoryLine = { id: string; sender: Sender; text: string };
@@ -85,13 +86,19 @@ export default function App() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyProgress, setHistoryProgress] = useState(100);
   const [textSpeed, setTextSpeed] = useState<"慢" | "标准" | "快">("标准");
+  const [automaticVoice, setAutomaticVoice] = useState(() => localStorage.getItem("unlogged.voice.autoplay.v2") !== "false");
   const current = getNode(game.currentId)!;
+  const voice = useVoicePlayback(current.id, current.kind === "line" ? current.text : "", automaticVoice, showTitle || menuOpen || historyOpen || current.kind !== "line");
   const [displayedText, setDisplayedText] = useState("");
   const historyBody = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     localStorage.setItem(SAVE_KEY, JSON.stringify(game));
   }, [game]);
+
+  useEffect(() => {
+    localStorage.setItem("unlogged.voice.autoplay.v2", String(automaticVoice));
+  }, [automaticVoice]);
 
   useEffect(() => {
     if (!showTitle) return;
@@ -124,6 +131,7 @@ export default function App() {
   const completeOrAdvance = () => {
     if (current.kind !== "line") return;
     if (displayedText.length < current.text.length) {
+      voice.retryOnGesture();
       setDisplayedText(current.text);
       return;
     }
@@ -162,11 +170,12 @@ export default function App() {
     <section className="game" aria-label="未登录的人，第一章">
       {showTitle && <section className="title-transition" aria-label="第一章，未登录的人"><p>第一章</p><h1>未登录的人</h1></section>}
       <div className="hud">
+        {voice.available && !showTitle && current.kind === "line" && <button className={`voice-icon${voice.needsGesture ? " voice-needs-gesture" : ""}`} type="button" onClick={voice.toggle} aria-label={voice.playing ? "暂停当前语音" : voice.needsGesture ? "点击启用语音" : "播放当前语音"} aria-pressed={voice.playing}>{voice.needsGesture ? "点击启用语音" : voice.playing ? "Ⅱ" : "▶"}</button>}
         <button className="history-icon" type="button" onClick={() => { setMenuOpen(false); setHistoryOpen(true); }} aria-label="打开对话记录">对话记录</button>
         <button className="menu-icon" type="button" onClick={() => { setHistoryOpen(false); setMenuOpen((open) => !open); }} aria-expanded={menuOpen} aria-label={menuOpen ? "关闭菜单" : "打开菜单"}>☰</button>
         {confirmRestart && <section className="restart-confirm" role="dialog" aria-label="确认重新开始"><p>要从头开始吗？</p><div><button type="button" onClick={() => setConfirmRestart(false)}>取消</button><button className="danger" type="button" onClick={restart}>重新开始</button></div></section>}
       </div>
-      {menuOpen && <><button className="menu-scrim" type="button" aria-label="关闭菜单" onClick={() => setMenuOpen(false)} /><GameMenu activeTab={menuTab} onSelect={setMenuTab} onClose={() => setMenuOpen(false)} onRestart={() => { setMenuOpen(false); setConfirmRestart(true); }} textSpeed={textSpeed} onTextSpeed={setTextSpeed} /></>}
+      {menuOpen && <><button className="menu-scrim" type="button" aria-label="关闭菜单" onClick={() => setMenuOpen(false)} /><GameMenu activeTab={menuTab} onSelect={setMenuTab} onClose={() => setMenuOpen(false)} onRestart={() => { setMenuOpen(false); setConfirmRestart(true); }} textSpeed={textSpeed} onTextSpeed={setTextSpeed} automaticVoice={automaticVoice} onAutomaticVoice={setAutomaticVoice} /></>}
       {historyOpen && <><button className="history-scrim" type="button" aria-label="关闭对话记录" onClick={() => setHistoryOpen(false)} /><section className="history-panel" aria-label="对话记录"><header><div><strong>对话记录</strong><span>第一章 · 未登录的人</span></div><button type="button" onClick={() => setHistoryOpen(false)} aria-label="关闭对话记录">×</button></header><div className="history-progress"><i style={{ width: `${historyProgress}%` }} /></div><div className="history-body" ref={historyBody} onScroll={updateHistoryProgress}>{game.storyHistory.map((line) => <article className={`history-entry ${line.sender}`} key={line.id}><strong>「{nameFor[line.sender]}」</strong><p>{line.id === current.id ? displayedText : line.text}</p></article>)}</div><footer><span>{historyProgress}%</span><span>滚动回看</span></footer></section></>}
       {current.kind !== "end" && <>
         <div className="clock">23:47</div>
@@ -199,15 +208,15 @@ function FriendsList() {
 
 type MenuTab = "chapters" | "saves" | "achievements" | "codex" | "settings";
 
-function GameMenu({ activeTab, onSelect, onClose, onRestart, textSpeed, onTextSpeed }: { activeTab: MenuTab; onSelect: (tab: MenuTab) => void; onClose: () => void; onRestart: () => void; textSpeed: "慢" | "标准" | "快"; onTextSpeed: (speed: "慢" | "标准" | "快") => void }) {
+function GameMenu({ activeTab, onSelect, onClose, onRestart, textSpeed, onTextSpeed, automaticVoice, onAutomaticVoice }: { activeTab: MenuTab; onSelect: (tab: MenuTab) => void; onClose: () => void; onRestart: () => void; textSpeed: "慢" | "标准" | "快"; onTextSpeed: (speed: "慢" | "标准" | "快") => void; automaticVoice: boolean; onAutomaticVoice: (enabled: boolean) => void }) {
   const items: Array<[MenuTab, string]> = [["chapters", "章节选择"], ["saves", "存档管理"], ["achievements", "成就"], ["codex", "图鉴"], ["settings", "设置"]];
-  return <section className="menu-panel" aria-label="游戏菜单"><aside><div className="menu-brand"><span>UNLOGGED</span><small>第一章 · 未登录的人</small></div><button className="continue-game" type="button" onClick={onClose}>继续游戏</button><nav>{items.map(([tab, label]) => <button type="button" key={tab} className={activeTab === tab ? "active" : ""} onClick={() => onSelect(tab)}>{label}</button>)}</nav><div className="menu-bottom"><button type="button" onClick={onRestart}>重新开始本章</button><button type="button" disabled>返回标题</button></div></aside><main><button className="menu-close" type="button" onClick={onClose} aria-label="关闭菜单">×</button><MenuContent tab={activeTab} textSpeed={textSpeed} onTextSpeed={onTextSpeed} onClose={onClose} /></main></section>;
+  return <section className="menu-panel" aria-label="游戏菜单"><aside><div className="menu-brand"><span>UNLOGGED</span><small>第一章 · 未登录的人</small></div><button className="continue-game" type="button" onClick={onClose}>继续游戏</button><nav>{items.map(([tab, label]) => <button type="button" key={tab} className={activeTab === tab ? "active" : ""} onClick={() => onSelect(tab)}>{label}</button>)}</nav><div className="menu-bottom"><button type="button" onClick={onRestart}>重新开始本章</button><button type="button" disabled>返回标题</button></div></aside><main><button className="menu-close" type="button" onClick={onClose} aria-label="关闭菜单">×</button><MenuContent tab={activeTab} textSpeed={textSpeed} onTextSpeed={onTextSpeed} automaticVoice={automaticVoice} onAutomaticVoice={onAutomaticVoice} onClose={onClose} /></main></section>;
 }
 
-function MenuContent({ tab, textSpeed, onTextSpeed, onClose }: { tab: MenuTab; textSpeed: "慢" | "标准" | "快"; onTextSpeed: (speed: "慢" | "标准" | "快") => void; onClose: () => void }) {
+function MenuContent({ tab, textSpeed, onTextSpeed, automaticVoice, onAutomaticVoice, onClose }: { tab: MenuTab; textSpeed: "慢" | "标准" | "快"; onTextSpeed: (speed: "慢" | "标准" | "快") => void; automaticVoice: boolean; onAutomaticVoice: (enabled: boolean) => void; onClose: () => void }) {
   if (tab === "chapters") return <div className="menu-content"><p className="menu-kicker">CHAPTERS</p><h2>章节选择</h2><button className="chapter-card" type="button" onClick={onClose}><span>CHAPTER 01</span><strong>未登录的人</strong><small>进行中 · 23:47</small><i>继续 →</i></button></div>;
   if (tab === "saves") return <div className="menu-content"><p className="menu-kicker">SAVES</p><h2>存档管理</h2><div className="empty-state"><strong>自动存档</strong><span>当前章节会在每次推进后保存。</span><small>手动存档位将在多章节版本开放。</small></div></div>;
   if (tab === "achievements") return <div className="menu-content"><p className="menu-kicker">ACHIEVEMENTS</p><h2>成就</h2><div className="empty-state"><strong>0 / 3 已解锁</strong><span>不同的选择会带往不同的结局。</span></div></div>;
   if (tab === "codex") return <div className="menu-content"><p className="menu-kicker">ARCHIVE</p><h2>图鉴</h2><div className="empty-state"><strong>档案尚未解锁</strong><span>收集角色、账号与场景的异常线索。</span></div></div>;
-  return <div className="menu-content"><p className="menu-kicker">SETTINGS</p><h2>设置</h2><div className="setting-row"><span>文字速度</span><div>{(["慢", "标准", "快"] as const).map((speed) => <button type="button" className={textSpeed === speed ? "active" : ""} onClick={() => onTextSpeed(speed)} key={speed}>{speed}</button>)}</div></div></div>;
+  return <div className="menu-content"><p className="menu-kicker">SETTINGS</p><h2>设置</h2><div className="setting-row"><span>文字速度</span><div>{(["慢", "标准", "快"] as const).map((speed) => <button type="button" className={textSpeed === speed ? "active" : ""} onClick={() => onTextSpeed(speed)} key={speed}>{speed}</button>)}</div></div><div className="setting-row"><span>语音自动播放</span><div><button type="button" className={!automaticVoice ? "active" : ""} onClick={() => onAutomaticVoice(false)}>关闭</button><button type="button" className={automaticVoice ? "active" : ""} onClick={() => onAutomaticVoice(true)} disabled={!hasAnyVoiceClips()}>开启</button></div></div></div>;
 }
